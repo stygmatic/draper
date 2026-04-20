@@ -1,4 +1,4 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -16,15 +16,7 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid email address.' });
   }
 
-  const transporter = nodemailer.createTransporter({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: false,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-  });
+  const resend = new Resend(process.env.RESEND_API_KEY);
 
   const subject = intent === 'sponsor'
     ? `Headline Sponsor Inquiry — ${company}`
@@ -41,22 +33,27 @@ module.exports = async function handler(req, res) {
         <tr><td style="padding:0.5rem 0;color:#7a8499;">Role</td><td style="color:#fff;">${role || '—'}</td></tr>
       </table>
       ${message ? `<div style="margin-top:1.5rem;padding:1rem;background:rgba(255,255,255,0.05);border-radius:4px;border-left:2px solid #c9a84c;"><p style="color:#7a8499;margin:0 0 0.5rem;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.1em;">Message</p><p style="margin:0;color:#e8eaf0;">${message}</p></div>` : ''}
-      <p style="margin-top:2rem;font-size:0.8rem;color:#7a8499;">Sent from draper-mixer.vercel.app</p>
+      <p style="margin-top:2rem;font-size:0.8rem;color:#7a8499;">Sent via draper-mixer.vercel.app</p>
     </div>
   `;
 
   try {
-    await transporter.sendMail({
-      from: `"Draper Mixer" <${process.env.SMTP_USER}>`,
-      to: process.env.TO_EMAIL || 'meddybayed@gmail.com',
+    const { error } = await resend.emails.send({
+      from: 'Draper Mixer <onboarding@resend.dev>',
+      to: ['meddybayed@gmail.com'],
       replyTo: email,
       subject,
       html,
     });
 
+    if (error) {
+      console.error('Resend error:', error);
+      return res.status(500).json({ error: 'Failed to send. Please try again or email us directly.' });
+    }
+
     return res.status(200).json({ success: true });
   } catch (err) {
-    console.error('Mail error:', err);
+    console.error('Resend exception:', err);
     return res.status(500).json({ error: 'Failed to send. Please try again or email us directly.' });
   }
-}
+};
