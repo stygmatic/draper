@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Tech & Dual Use Mixer — Draper Ventures</title>
+  <style>
+    :root {
+      --gold: #c9a84c;
+      --gold-light: #f0d080;
+      --gold-dim: rgba(201,168,76,0.15);
+      --blue: #3a8cff;
+      --blue-bright: #60aaff;
+      --bg: #050a12;
+      --surface: rgba(255,255,255,0.035);
+      --surface-hover: rgba(255,255,255,0.07);
+      --border: rgba(201,168,76,0.2);
+      --text: #e8eaf0;
+      --muted: #7a8499;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* ── CANVAS BACKGROUND ── */
+    #starfield {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ── NOISE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.4;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 4rem;
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      background: rgba(5,10,18,0.75);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+    }
+
+    .nav-logo-mark {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      flex-shrink: 0;
+    }
+
+    .nav-logo-text {
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold-light);
+    }
+
+    .nav-cta {
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      color: #050a12;
+      border: none;
+      padding: 0.6rem 1.5rem;
+      border-radius: 2px;
+      font-weight: 700;
+      font-size: 0.78rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .nav-cta:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 30px rgba(201,168,76,0.4);
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8rem 2rem 6rem;
+      overflow: hidden;
+    }
+
+    .hero-glow {
+      position: absolute;
+      width: 900px; height: 900px;
+      background: radial-gradient(ellipse, rgba(201,168,76,0.07) 0%, transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -60%);
+      pointer-events: none;
+    }
+
+    .hero-glow-blue {
+      position: absolute;
+      width: 600px; height: 600px;
+      background: radial-gradient(ellipse, rgba(58,140,255,0.06) 0%, transparent 70%);
+      bottom: 0; right: 10%;
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: 1px solid var(--border);
+      background: var(--gold-dim);
+      padding: 0.4rem 1rem;
+      border-radius: 50px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold-light);
+      margin-bottom: 2rem;
+      animation: fadeUp 0.8s ease both;
+    }
+
+    .badge-dot {
+      width: 6px; height: 6px;
+      background: var(--gold);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.4); }
+    }
+
+    .hero-eyebrow {
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.25rem;
+      animation: fadeUp 0.8s 0.1s ease both;
+    }
+
+    .hero-title {
+      font-size: clamp(3rem, 7vw, 6.5rem);
+      font-weight: 800;
+      line-height: 1.0;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.5rem;
+      animation: fadeUp 0.9s 0.2s ease both;
+    }
+
+    .hero-title .line1 { display: block; color: #fff; }
+    .hero-title .line2 {
+      display: block;
+      background: linear-gradient(90deg, var(--gold) 0%, var(--gold-light) 50%, var(--blue-bright) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      max-width: 620px;
+      font-size: 1.15rem;
+      color: var(--muted);
+      line-height: 1.75;
+      margin-bottom: 3rem;
+      animation: fadeUp 0.9s 0.35s ease both;
+    }
+
+    .hero-sub strong { color: var(--text); }
+
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      animation: fadeUp 0.9s 0.5s ease both;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+      color: #050a12;
+      border: none;
+      padding: 0.9rem 2.2rem;
+      font-weight: 800;
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border-radius: 3px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(201,168,76,0.45);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.15);
+      padding: 0.9rem 2.2rem;
+      font-weight: 600;
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border-radius: 3px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: border-color 0.2s, background 0.2s;
+      backdrop-filter: blur(10px);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--gold);
+      background: var(--gold-dim);
+    }
+
+    .hero-venue {
+      margin-top: 3.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      animation: fadeUp 0.9s 0.65s ease both;
+    }
+
+    .hero-venue svg { opacity: 0.6; }
+
+    /* ── DIVIDER ── */
+    .divider-line {
+      position: relative;
+      z-index: 2;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 0 4rem;
+    }
+
+    /* ── STATS ── */
+    .stats {
+      position: relative;
+      z-index: 2;
+      padding: 5rem 4rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2px;
+      background: var(--border);
+      margin: 0;
+    }
+
+    .stat-card {
+      background: var(--bg);
+      padding: 3rem 2.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.3s;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, var(--gold-dim) 0%, transparent 100%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .stat-card:hover::before { opacity: 1; }
+
+    .stat-number {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display: block;
+      line-height: 1;
+      margin-bottom: 0.75rem;
+    }
+
+    .stat-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── ABOUT ── */
+    .about {
+      position: relative;
+      z-index: 2;
+      padding: 8rem 4rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .section-label::before {
+      content: '';
+      display: block;
+      width: 32px;
+      height: 1px;
+      background: var(--gold);
+    }
+
+    .section-title {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      color: #fff;
+      margin-bottom: 1.5rem;
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+      align-items: center;
+      margin-top: 4rem;
+    }
+
+    .about-text p {
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1.8;
+      margin-bottom: 1.25rem;
+    }
+
+    .about-text p strong { color: var(--text); }
+
+    .about-features {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .feature-item {
+      display: flex;
+      gap: 1.25rem;
+      align-items: flex-start;
+      padding: 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      transition: background 0.3s, border-color 0.3s, transform 0.3s;
+      cursor: default;
+    }
+
+    .feature-item:hover {
+      background: var(--surface-hover);
+      border-color: var(--gold);
+      transform: translateX(4px);
+    }
+
+    .feature-icon {
+      width: 44px; height: 44px;
+      background: var(--gold-dim);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 1.2rem;
+    }
+
+    .feature-content h4 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.3rem;
+      letter-spacing: 0.02em;
+    }
+
+    .feature-content p {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ── SPEAKERS ── */
+    .speakers-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-top: 3rem;
+    }
+
+    .speaker-card {
+      background: var(--bg);
+      padding: 2.5rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 1.25rem;
+      transition: background 0.3s;
+    }
+
+    .speaker-card:hover { background: var(--surface); }
+
+    .speaker-avatar {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      background: var(--gold-dim);
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    .speaker-card.tba .speaker-avatar {
+      background: rgba(255,255,255,0.03);
+      color: var(--muted);
+      font-size: 1.5rem;
+      border-style: dashed;
+    }
+
+    .speaker-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.25rem;
+    }
+
+    .speaker-card.tba .speaker-name { color: var(--muted); }
+
+    .speaker-role {
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+
+    /* ── HEADLINE SPONSOR ── */
+    .headline-sponsor {
+      background: linear-gradient(135deg, rgba(201,168,76,0.06) 0%, rgba(201,168,76,0.02) 100%);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 3rem;
+    }
+
+    /* ── SPONSOR ── */
+    .sponsor {
+      position: relative;
+      z-index: 2;
+      padding: 8rem 4rem;
+      background: linear-gradient(180deg, transparent 0%, rgba(201,168,76,0.03) 50%, transparent 100%);
+    }
+
+    .sponsor-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .sponsor-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .tiers {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .tier {
+      background: var(--bg);
+      padding: 2.5rem 2rem;
+      position: relative;
+      transition: background 0.3s;
+    }
+
+    .tier.featured {
+      background: linear-gradient(180deg, rgba(201,168,76,0.06) 0%, rgba(201,168,76,0.02) 100%);
+    }
+
+    .tier.featured::before {
+      content: 'MOST POPULAR';
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translate(-50%, 0);
+      background: linear-gradient(90deg, var(--gold), var(--gold-light));
+      color: #050a12;
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      padding: 0.3rem 1rem;
+      border-radius: 0 0 4px 4px;
+    }
+
+    .tier-name {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.5rem;
+    }
+
+    .tier-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 1.5rem;
+    }
+
+    .tier-divider {
+      height: 1px;
+      background: var(--border);
+      margin-bottom: 1.5rem;
+    }
+
+    .tier-perks {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .tier-perks li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .tier-perks li .check {
+      color: var(--gold);
+      flex-shrink: 0;
+      font-size: 0.75rem;
+      margin-top: 0.15rem;
+    }
+
+    .tier-cta {
+      margin-top: 2rem;
+      display: block;
+      text-align: center;
+      padding: 0.8rem;
+      border-radius: 3px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .tier-cta.outline {
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .tier-cta.outline:hover {
+      border-color: var(--gold);
+      color: var(--gold-light);
+      background: var(--gold-dim);
+    }
+
+    .tier-cta.solid {
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      color: #050a12;
+    }
+
+    .tier-cta.solid:hover {
+      box-shadow: 0 8px 30px rgba(201,168,76,0.4);
+      transform: translateY(-1px);
+    }
+
+    /* ── ECOSYSTEM ── */
+    .ecosystem {
+      position: relative;
+      z-index: 2;
+      padding: 8rem 4rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .ecosystem-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-top: 4rem;
+    }
+
+    .eco-card {
+      background: var(--bg);
+      padding: 3rem 2.5rem;
+      transition: background 0.3s;
+    }
+
+    .eco-card:hover {
+      background: var(--surface);
+    }
+
+    .eco-card-number {
+      font-size: 3.5rem;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      background: linear-gradient(135deg, var(--blue) 0%, var(--blue-bright) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+      margin-bottom: 0.75rem;
+    }
+
+    .eco-card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+
+    .eco-card-desc {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ── QUOTE ── */
+    .quote-section {
+      position: relative;
+      z-index: 2;
+      padding: 6rem 4rem;
+      text-align: center;
+      background: linear-gradient(180deg, transparent, rgba(58,140,255,0.04), transparent);
+    }
+
+    .quote-mark {
+      font-size: 6rem;
+      line-height: 0.5;
+      color: var(--gold-dim);
+      font-family: Georgia, serif;
+      margin-bottom: 1.5rem;
+      display: block;
+    }
+
+    .quote-text {
+      font-size: clamp(1.3rem, 3vw, 2rem);
+      font-weight: 600;
+      color: #fff;
+      max-width: 800px;
+      margin: 0 auto 2rem;
+      line-height: 1.5;
+      letter-spacing: -0.01em;
+    }
+
+    .quote-attribution {
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    /* ── CTA SECTION ── */
+    .cta-section {
+      position: relative;
+      z-index: 2;
+      padding: 8rem 4rem;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .cta-bg {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 80% at 50% 50%, rgba(201,168,76,0.06), transparent);
+      pointer-events: none;
+    }
+
+    .cta-inner {
+      position: relative;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .cta-title {
+      font-size: clamp(2rem, 5vw, 4rem);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+      color: #fff;
+      margin-bottom: 1.5rem;
+    }
+
+    .cta-title span {
+      background: linear-gradient(90deg, var(--gold), var(--gold-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .cta-sub {
+      font-size: 1.05rem;
+      color: var(--muted);
+      margin-bottom: 3rem;
+      line-height: 1.7;
+    }
+
+    .cta-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative;
+      z-index: 2;
+      border-top: 1px solid var(--border);
+      padding: 2.5rem 4rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .footer-left {
+      font-size: 0.78rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    .footer-right {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .footer-right a {
+      color: var(--gold);
+      text-decoration: none;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-in {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .animate-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      nav { padding: 1rem 1.5rem; }
+      .about-grid { grid-template-columns: 1fr; gap: 3rem; }
+      .ecosystem-grid { grid-template-columns: 1fr; }
+      .speakers-grid { grid-template-columns: repeat(2, 1fr); }
+      .headline-sponsor { padding: 2rem 1.25rem; }
+      .headline-sponsor .tier-perks { grid-template-columns: 1fr !important; }
+      .about, .sponsor, .ecosystem, .cta-section { padding: 5rem 1.5rem; }
+      .stats { padding: 3rem 1.5rem; }
+      footer { padding: 2rem 1.5rem; flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="starfield"></canvas>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-mark"></div>
+    <span class="nav-logo-text">Draper Ventures</span>
+  </a>
+  <a href="#sponsor" class="nav-cta" onclick="openModal('cohost'); return false;">Become a Co-Host</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-glow-blue"></div>
+
+  <div class="hero-badge">
+    <span class="badge-dot"></span>
+    Invite Only &nbsp;·&nbsp; Now Accepting Headline Sponsors
+  </div>
+
+  <p class="hero-eyebrow">San Mateo &nbsp;·&nbsp; Draper Ventures &nbsp;·&nbsp; Date TBD</p>
+
+  <h1 class="hero-title">
+    <span class="line1">Deep Tech &</span>
+    <span class="line2">Dual Use Mixer</span>
+  </h1>
+
+  <p class="hero-sub">
+    An invitation-only gathering of <strong>founders, VCs, mentors, and industry experts</strong>
+    at the heart of the Draper ecosystem — where the next generation of
+    <strong>deep tech and dual-use companies</strong> gets funded.
+  </p>
+
+  <div class="hero-actions">
+    <a href="#sponsor" class="btn-primary" onclick="openModal('cohost'); return false;">Co-Host This Event</a>
+    <a href="#about" class="btn-secondary">Learn More</a>
+  </div>
+
+  <div class="hero-venue">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+      <circle cx="12" cy="10" r="3"></circle>
+    </svg>
+    Draper Ventures &nbsp;·&nbsp; San Mateo, CA
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat-card animate-in">
+    <span class="stat-number" data-target="63">0</span>
+    <span class="stat-label">Unicorns, Hectocorns & Rhinos</span>
+  </div>
+  <div class="stat-card animate-in">
+    <span class="stat-number" data-prefix="$" data-target="1" data-suffix="B+">$0</span>
+    <span class="stat-label">Venture Capital Raised</span>
+  </div>
+  <div class="stat-card animate-in">
+    <span class="stat-number" data-prefix="$" data-target="7" data-suffix="M+ ARR">$0</span>
+    <span class="stat-label">Spring '26 Cohort Revenue</span>
+  </div>
+  <div class="stat-card animate-in">
+    <span class="stat-number">By<br>Invite</span>
+    <span class="stat-label">Curated Attendance Only</span>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section class="about" id="about">
+  <div class="about-grid">
+    <div class="about-text animate-in">
+      <p class="section-label">The Opportunity</p>
+      <h2 class="section-title">Where Deep Tech<br>Gets Its Momentum</h2>
+      <p>
+        We're bringing together the most ambitious minds building in <strong>deep tech and dual-use</strong> — from defense AI and advanced materials to biotech and next-gen energy — for an evening that puts the right people in the same room.
+      </p>
+      <p>
+        Hosted at <strong>Draper Ventures</strong> in San Mateo, this mixer is designed for high-signal conversations: no keynotes, no panels, just founders pitching, VCs listening, and deals being formed in real time.
+      </p>
+      <p>
+        <strong>DraperU's spring 2026 cohort</strong> is live and already generating traction. This is your direct line to their founders, their backers, and the broader Draper network.
+      </p>
+    </div>
+
+    <div class="about-features animate-in">
+      <div class="feature-item">
+        <div class="feature-icon">🚀</div>
+        <div class="feature-content">
+          <h4>Founder Access</h4>
+          <p>Direct introductions to DraperU Spring '26 cohort companies generating $7M+ collective ARR.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">💼</div>
+        <div class="feature-content">
+          <h4>Investor Network</h4>
+          <p>Co-mingle with the VCs, angels, and family offices backing the next generation of deep tech.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">🛡️</div>
+        <div class="feature-content">
+          <h4>Dual-Use Focus</h4>
+          <p>Curated deal flow in defense tech, national security, and dual-use applications — a category reshaping venture.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">🌐</div>
+        <div class="feature-content">
+          <h4>The Draper Ecosystem</h4>
+          <p>Tap into a network that has produced 63+ unicorns and over $1B in venture capital raised.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider-line"></div>
+
+<!-- QUOTE -->
+<section class="quote-section animate-in">
+  <span class="quote-mark">"</span>
+  <p class="quote-text">
+    The best investments happen when the right people are in the same room at the right time.
+  </p>
+  <p class="quote-attribution">Draper Ventures &nbsp;·&nbsp; Builder of Unicorns Since 1985</p>
+</section>
+
+<div class="divider-line"></div>
+
+<!-- ECOSYSTEM -->
+<section class="ecosystem animate-in">
+  <div style="text-align:center; margin-bottom: 1rem;">
+    <p class="section-label" style="justify-content:center;">The Draper Legacy</p>
+    <h2 class="section-title">An Ecosystem Built<br>to Win at Scale</h2>
+  </div>
+
+  <div class="ecosystem-grid">
+    <div class="eco-card animate-in">
+      <div class="eco-card-number">63+</div>
+      <div class="eco-card-title">Portfolio Champions</div>
+      <div class="eco-card-desc">Unicorns, hectocorns, and rhinos produced through the Draper network — one of the most storied track records in venture capital history.</div>
+    </div>
+    <div class="eco-card animate-in">
+      <div class="eco-card-number">$1B+</div>
+      <div class="eco-card-title">Capital Deployed</div>
+      <div class="eco-card-desc">Over a billion dollars in venture capital raised across the Draper portfolio — backing category-defining companies from day zero.</div>
+    </div>
+    <div class="eco-card animate-in">
+      <div class="eco-card-number">$7M+</div>
+      <div class="eco-card-title">Spring '26 ARR</div>
+      <div class="eco-card-desc">DraperU's current cohort is already generating collective annual recurring revenue — proof that traction precedes graduation.</div>
+    </div>
+    <div class="eco-card animate-in">
+      <div class="eco-card-number">∞</div>
+      <div class="eco-card-title">Network Effect</div>
+      <div class="eco-card-desc">Every DraperU alum, every portfolio founder, every LP becomes a node in a compounding network spanning 30+ countries.</div>
+    </div>
+  </div>
+</section>
+
+<!-- SPEAKERS -->
+<section class="ecosystem" id="speakers" style="padding-bottom: 2rem;">
+  <div style="text-align:center; margin-bottom: 1rem;">
+    <p class="section-label" style="justify-content:center;">Featured Speakers</p>
+    <h2 class="section-title">Hear From the<br>Builders & Backers</h2>
+    <p style="color:var(--muted); max-width:520px; margin: 1rem auto 0; font-size:1rem; line-height:1.7;">
+      Speakers to be announced. We're curating a lineup of founders, investors, and operators at the frontier of deep tech and dual-use.
+    </p>
+  </div>
+
+  <div class="speakers-grid animate-in">
+    <div class="speaker-card tba">
+      <div class="speaker-avatar">?</div>
+      <div class="speaker-info">
+        <div class="speaker-name">Speaker TBA</div>
+        <div class="speaker-role">Founder &nbsp;·&nbsp; Deep Tech</div>
+      </div>
+    </div>
+    <div class="speaker-card tba">
+      <div class="speaker-avatar">?</div>
+      <div class="speaker-info">
+        <div class="speaker-name">Speaker TBA</div>
+        <div class="speaker-role">General Partner &nbsp;·&nbsp; Venture Capital</div>
+      </div>
+    </div>
+    <div class="speaker-card tba">
+      <div class="speaker-avatar">?</div>
+      <div class="speaker-info">
+        <div class="speaker-name">Speaker TBA</div>
+        <div class="speaker-role">Operator &nbsp;·&nbsp; Dual-Use Tech</div>
+      </div>
+    </div>
+    <div class="speaker-card tba">
+      <div class="speaker-avatar">?</div>
+      <div class="speaker-info">
+        <div class="speaker-name">Speaker TBA</div>
+        <div class="speaker-role">DraperU &nbsp;·&nbsp; Cohort Lead</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SPONSOR -->
+<section class="sponsor" id="sponsor">
+  <div class="sponsor-inner" style="max-width: 780px;">
+    <div class="sponsor-header animate-in">
+      <p class="section-label" style="justify-content:center;">One Exclusive Opportunity</p>
+      <h2 class="section-title">Headline Sponsor</h2>
+      <p style="color:var(--muted); max-width:560px; margin: 1rem auto 0; font-size:1rem; line-height:1.7;">
+        We're offering a single headline sponsorship to one VC or firm in the San Francisco Bay Area.
+        Your brand, front and center — alongside Draper Ventures.
+      </p>
+    </div>
+
+    <div class="headline-sponsor animate-in">
+      <ul class="tier-perks" style="display:grid; grid-template-columns:1fr 1fr; gap:1.1rem 2rem;">
+        <li><span class="check">◆</span> Premier co-branding on all event materials & website</li>
+        <li><span class="check">◆</span> Speaking slot or fireside chat at the event</li>
+        <li><span class="check">◆</span> 10 reserved seats for your team & LPs</li>
+        <li><span class="check">◆</span> Pre-event introductions to DraperU Spring '26 founders</li>
+        <li><span class="check">◆</span> Post-event deal flow recap & attendee highlights</li>
+        <li><span class="check">◆</span> Social media co-promotion to the Draper network</li>
+        <li><span class="check">◆</span> Dedicated showcase table for portfolio companies</li>
+        <li><span class="check">◆</span> Exclusive — only one sponsor, maximum brand visibility</li>
+      </ul>
+      <div style="text-align:center; margin-top:2.5rem;">
+        <a href="#" class="btn-primary" style="font-size:0.9rem; padding:1rem 3rem;" onclick="openModal('sponsor'); return false;">
+          Claim This Sponsorship
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="cta-section">
+  <div class="cta-bg"></div>
+  <div class="cta-inner animate-in">
+    <h2 class="cta-title">Ready to Be<br><span>in the Room?</span></h2>
+    <p class="cta-sub">
+      DM us directly or reach out via email to explore co-hosting, sponsorship, or securing your invitation to the Bay Area's most exciting deep tech event of 2026.
+    </p>
+    <div class="cta-buttons">
+      <a href="#" class="btn-primary" onclick="openModal('cohost'); return false;">
+        Contact Us Now
+      </a>
+      <a href="https://www.linkedin.com/school/draperuniversity/" target="_blank" class="btn-secondary">
+        Learn About DraperU
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-left">
+    © 2026 Deep Tech & Dual Use Mixer &nbsp;·&nbsp; Hosted at Draper Ventures, San Mateo CA
+  </div>
+  <div class="footer-right">
+    Questions? <a href="mailto:meddybayed@gmail.com">meddybayed@gmail.com</a>
+  </div>
+</footer>
+
+<!-- CONTACT MODAL -->
+<div id="modal-overlay" style="display:none;" onclick="if(event.target===this)closeModal()">
+  <div id="modal">
+    <button class="modal-close" onclick="closeModal()" aria-label="Close">&times;</button>
+    <div id="modal-header">
+      <p class="modal-eyebrow" id="modal-eyebrow">Headline Sponsor</p>
+      <h3 id="modal-title">Claim This Sponsorship</h3>
+      <p id="modal-sub">One exclusive slot. Tell us about your firm and we'll be in touch within 24 hours.</p>
+    </div>
+
+    <form id="contact-form" novalidate>
+      <input type="hidden" id="form-intent" name="intent" value="sponsor" />
+      <div class="form-row">
+        <div class="form-group">
+          <label for="f-name">Full Name <span class="req">*</span></label>
+          <input type="text" id="f-name" name="name" placeholder="Tim Draper" required />
+        </div>
+        <div class="form-group">
+          <label for="f-company">Firm / Company <span class="req">*</span></label>
+          <input type="text" id="f-company" name="company" placeholder="Draper Ventures" required />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="f-email">Email <span class="req">*</span></label>
+          <input type="email" id="f-email" name="email" placeholder="you@firm.vc" required />
+        </div>
+        <div class="form-group">
+          <label for="f-role">Title / Role</label>
+          <input type="text" id="f-role" name="role" placeholder="General Partner" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="f-message">Message <span style="color:var(--muted);font-weight:400;">(optional)</span></label>
+        <textarea id="f-message" name="message" rows="3" placeholder="Tell us a bit about your firm and interest in co-hosting..."></textarea>
+      </div>
+      <div id="form-error" class="form-msg error" style="display:none;"></div>
+      <button type="submit" class="btn-primary form-submit" id="submit-btn">
+        <span id="submit-label">Send Inquiry</span>
+        <span id="submit-spinner" style="display:none;">Sending…</span>
+      </button>
+    </form>
+
+    <div id="form-success" style="display:none;">
+      <div class="success-icon">✓</div>
+      <h3>Inquiry Received</h3>
+      <p>We'll be in touch within 24 hours. In the meantime, feel free to reach out directly at <a href="mailto:meddybayed@gmail.com">meddybayed@gmail.com</a>.</p>
+    </div>
+  </div>
+</div>
+
+<style>
+  #modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(5,10,18,0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    animation: fadeIn 0.2s ease;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  #modal {
+    background: #0b1220;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2.5rem;
+    max-width: 580px;
+    width: 100%;
+    position: relative;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.7), 0 0 0 1px rgba(201,168,76,0.1);
+    animation: slideUp 0.25s ease;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  @keyframes slideUp { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+  .modal-close {
+    position: absolute;
+    top: 1.25rem; right: 1.25rem;
+    background: none;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--muted);
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s, color 0.2s;
+    line-height: 1;
+  }
+
+  .modal-close:hover { border-color: var(--gold); color: var(--gold-light); }
+
+  .modal-eyebrow {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+  }
+
+  #modal-header h3 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+  }
+
+  #modal-sub {
+    font-size: 0.88rem;
+    color: var(--muted);
+    margin-bottom: 2rem;
+    line-height: 1.6;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+  }
+
+  .form-row .form-group { margin-bottom: 0; }
+
+  .form-group label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: 0.05em;
+  }
+
+  .req { color: var(--gold); }
+
+  .form-group input,
+  .form-group textarea {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 4px;
+    padding: 0.7rem 0.9rem;
+    color: var(--text);
+    font-size: 0.9rem;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+    resize: vertical;
+  }
+
+  .form-group input::placeholder,
+  .form-group textarea::placeholder { color: rgba(122,132,153,0.6); }
+
+  .form-group input:focus,
+  .form-group textarea:focus {
+    border-color: var(--gold);
+    background: rgba(201,168,76,0.05);
+  }
+
+  .form-group input.invalid,
+  .form-group textarea.invalid { border-color: #e05252; }
+
+  .form-submit {
+    width: 100%;
+    padding: 0.9rem;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    border: none;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .form-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+
+  .form-msg.error {
+    background: rgba(224,82,82,0.1);
+    border: 1px solid rgba(224,82,82,0.3);
+    border-radius: 4px;
+    padding: 0.7rem 1rem;
+    font-size: 0.82rem;
+    color: #f08080;
+    margin-bottom: 0.75rem;
+  }
+
+  #form-success {
+    text-align: center;
+    padding: 2rem 1rem;
+  }
+
+  .success-icon {
+    width: 64px; height: 64px;
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #050a12;
+    font-weight: 900;
+    margin: 0 auto 1.5rem;
+  }
+
+  #form-success h3 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 0.75rem;
+  }
+
+  #form-success p {
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  #form-success a { color: var(--gold); text-decoration: none; }
+
+  @media (max-width: 600px) {
+    #modal { padding: 1.75rem 1.25rem; }
+    .form-row { grid-template-columns: 1fr; }
+  }
+</style>
+
+<script>
+  function openModal(intent) {
+    const overlay = document.getElementById('modal-overlay');
+    const form = document.getElementById('contact-form');
+    const success = document.getElementById('form-success');
+    const intentInput = document.getElementById('form-intent');
+    const eyebrow = document.getElementById('modal-eyebrow');
+    const title = document.getElementById('modal-title');
+    const sub = document.getElementById('modal-sub');
+    const err = document.getElementById('form-error');
+
+    intentInput.value = intent;
+    form.style.display = 'block';
+    success.style.display = 'none';
+    err.style.display = 'none';
+    form.reset();
+
+    if (intent === 'sponsor') {
+      eyebrow.textContent = 'Headline Sponsor';
+      title.textContent = 'Claim This Sponsorship';
+      sub.textContent = 'One exclusive slot. Tell us about your firm and we'll be in touch within 24 hours.';
+    } else {
+      eyebrow.textContent = 'Co-Host Partnership';
+      title.textContent = 'Become a Co-Host';
+      sub.textContent = 'We're looking for VCs and firms in the Bay Area to co-host this event. Reach out and let's talk.';
+    }
+
+    overlay.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('f-name').focus(), 100);
+  }
+
+  function closeModal() {
+    document.getElementById('modal-overlay').style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  document.getElementById('contact-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const form = e.target;
+    const err = document.getElementById('form-error');
+    const submitBtn = document.getElementById('submit-btn');
+    const label = document.getElementById('submit-label');
+    const spinner = document.getElementById('submit-spinner');
+
+    err.style.display = 'none';
+    let valid = true;
+
+    ['f-name', 'f-company', 'f-email'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el.value.trim()) {
+        el.classList.add('invalid');
+        valid = false;
+      } else {
+        el.classList.remove('invalid');
+      }
+    });
+
+    const emailEl = document.getElementById('f-email');
+    if (emailEl.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value)) {
+      emailEl.classList.add('invalid');
+      valid = false;
+    }
+
+    if (!valid) {
+      err.textContent = 'Please fill in all required fields.';
+      err.style.display = 'block';
+      return;
+    }
+
+    submitBtn.disabled = true;
+    label.style.display = 'none';
+    spinner.style.display = 'inline';
+
+    const payload = {
+      intent: document.getElementById('form-intent').value,
+      name: document.getElementById('f-name').value.trim(),
+      company: document.getElementById('f-company').value.trim(),
+      email: document.getElementById('f-email').value.trim(),
+      role: document.getElementById('f-role').value.trim(),
+      message: document.getElementById('f-message').value.trim(),
+    };
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        form.style.display = 'none';
+        document.getElementById('form-success').style.display = 'block';
+      } else {
+        err.textContent = data.error || 'Something went wrong. Please try again.';
+        err.style.display = 'block';
+      }
+    } catch (_) {
+      err.textContent = 'Network error. Please email us directly at meddybayed@gmail.com.';
+      err.style.display = 'block';
+    } finally {
+      submitBtn.disabled = false;
+      label.style.display = 'inline';
+      spinner.style.display = 'none';
+    }
+  });
+
+  document.querySelectorAll('#contact-form input, #contact-form textarea').forEach(el => {
+    el.addEventListener('input', () => el.classList.remove('invalid'));
+  });
+</script>
+
+<script>
+  // ── STARFIELD ──
+  const canvas = document.getElementById('starfield');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+
+  function initStars() {
+    stars = [];
+    for (let i = 0; i < 180; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 1.2 + 0.2,
+        a: Math.random(),
+        speed: Math.random() * 0.003 + 0.001,
+        phase: Math.random() * Math.PI * 2
+      });
+    }
+  }
+
+  function drawStars(t) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    stars.forEach(s => {
+      const alpha = s.a * (0.4 + 0.6 * Math.sin(t * s.speed + s.phase));
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(drawStars);
+  }
+
+  resize();
+  initStars();
+  window.addEventListener('resize', () => { resize(); initStars(); });
+  requestAnimationFrame(drawStars);
+
+  // ── COUNTER ANIMATION ──
+  function animateCounter(el) {
+    const target = parseInt(el.dataset.target, 10);
+    const prefix = el.dataset.prefix || '';
+    const suffix = el.dataset.suffix || '';
+    const duration = 1800;
+    const start = performance.now();
+    function tick(now) {
+      const p = Math.min((now - start) / duration, 1);
+      const ease = 1 - Math.pow(1 - p, 3);
+      el.textContent = prefix + Math.floor(ease * target) + suffix;
+      if (p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  // ── SCROLL ANIMATIONS ──
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        // trigger counters inside stat cards
+        entry.target.querySelectorAll('[data-target]').forEach(animateCounter);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.animate-in').forEach(el => observer.observe(el));
+
+  // also observe stat cards separately for counters
+  document.querySelectorAll('.stat-card').forEach(card => {
+    const innerObserver = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        card.querySelectorAll('[data-target]').forEach(animateCounter);
+        innerObserver.disconnect();
+      }
+    }, { threshold: 0.5 });
+    innerObserver.observe(card);
+  });
+</script>
+</body>
+</html>
