@@ -48,7 +48,7 @@ module.exports = async function handler(req, res) {
 
     if (error) {
       console.error('Resend error:', error);
-      return res.status(500).json({ error: 'Failed to send. Please try again or email us directly.' });
+      return res.status(500).json({ error: error.message || JSON.stringify(error) });
     }
 
     return res.status(200).json({ success: true });
